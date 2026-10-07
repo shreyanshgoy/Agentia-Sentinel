@@ -1,0 +1,16 @@
+{
+  "name": "agentia-sentinel",
+  "version": "0.1.0",
+  "description": "Policy, approval and tamper-evident audit layer for Copado Agentia CLI, covering CLI, agent hooks and MCP.",
+  "type": "module",
+  "bin": {
+    "sentinel": "bin/sentinel.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/sentinel.test.js"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,4 @@
+node_modules/
+.sentinel/pending/
+.sentinel/approvals/
+.sentinel/.lock

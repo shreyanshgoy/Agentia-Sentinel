@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "timezone": "UTC",
+  "defaultAction": "allow",
+  "approvalTtlMinutes": 30,
+  "notify": {
+    "webhook": "env:SENTINEL_WEBHOOK",
+    "on": ["deny", "approval-required", "allow-approved"]
+  },
+  "rules": [
+    {
+      "id": "agents-never-delete",
+      "match": { "actor": "agent", "tool": "*.delete" },
+      "action": "deny",
+      "reason": "Agents may not delete Copado records. Ask a human to run it."
+    },
+    {
+      "id": "agents-never-touch-credentials",
+      "match": { "actor": "agent", "tool": ["auth.set", "credential.*"], "risk": ["write", "critical"] },
+      "action": "deny",
+      "reason": "Credentials and auth are human-only."
+    },
+    {
+      "id": "weekend-change-freeze",
+      "match": {
+        "risk": ["write", "critical"],
+        "when": [
+          { "days": ["Fri"], "from": "16:00", "to": "24:00" },
+          { "days": ["Sat", "Sun"], "from": "00:00", "to": "24:00" }
+        ]
+      },
+      "action": "deny",
+      "reason": "Change freeze: Fri 16:00 to Sun 24:00 (policy timezone)."
+    },
+    {
+      "id": "agent-deploy-flag-needs-approval",
+      "match": { "actor": "agent", "args": { "deploy": true } },
+      "action": "approve",
+      "reason": "Deploying (not just merging) needs a named human approver."
+    },
+    {
+      "id": "agent-merge-and-deploy-needs-approval",
+      "match": { "actor": "agent", "args": { "operation": "merge_and_deploy" } },
+      "action": "approve",
+      "reason": "merge_and_deploy needs a named human approver."
+    },
+    {
+      "id": "agent-critical-needs-approval",
+      "match": { "actor": "agent", "risk": "critical" },
+      "action": "approve",
+      "reason": "Promotions, submits, sync-applies and job kills by an agent need a named human approver."
+    },
+    {
+      "id": "agent-production-needs-approval",
+      "match": { "actor": "agent", "risk": ["write", "critical"], "anyArg": "\\bprod(uction)?\\b" },
+      "action": "approve",
+      "reason": "Anything mentioning production needs a named human approver."
+    }
+  ]
+}
